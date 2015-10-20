@@ -29,14 +29,17 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # gem 'unicorn'
 
 # Use Capistrano for deployment
-gem 'capistrano-rails', group: :development
+# gem 'capistrano-rails', group: :development
 gem 'capistrano'
+gem 'capistrano-rails',   '~> 1.1', require: false
+# gem 'capistrano-rbenv', '~> 2.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug'
   gem 'pry'
 end
+gem "better_errors"
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> in views

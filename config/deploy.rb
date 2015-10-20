@@ -2,7 +2,18 @@
 lock '3.4.0'
 
 set :application, 'capistrano-demo'
-set :repo_url, 'git@example.com:me/my_repo.git'
+set :repo_url, 'git@github.com:AtulKsol/capistrano-demo.git'
+
+set :stages, ["staging", "production"]
+set :default_stage, "production"
+
+set :default_env, { path: "~/.rbenv/shims:~/.rbenv/bin:$PATH" }
+
+# deploy_via command makes Capistrano do a single clone/checkout of your repository on your server the first time, then do an svn up or git pull on every deploy instead of doing an entire clone/export.
+set :deploy_via, :remote_cache
+
+# set :bundle_gemfile, -> { release_path.join('Gemfile') }
+# set :bundle_dir, -> { shared_path.join('bundle') }
 
 # Default branch is :master
 # ask :branch, `git rev-parse --abbrev-ref HEAD`.chomp
@@ -20,7 +31,7 @@ set :repo_url, 'git@example.com:me/my_repo.git'
 # set :log_level, :debug
 
 # Default value for :pty is false
-# set :pty, true
+set :pty, true
 
 # Default value for :linked_files is []
 # set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml')
@@ -45,20 +56,26 @@ namespace :deploy do
     end
   end
 
-
   desc 'Precompiling Assets fr Production Environment'
   task :precompile_assets do
     on roles(:web) do
       within release_path do
+        puts "Precompiling Assets..."
         execute :rake, "assets:precompile RAILS_ENV=production"
       end
     end
   end
 
-  after :publishing, 'deploy:precompile_assets'
+  desc "puts Check Server Config"
+  task :check_server_config do
+    puts "SERVER_IP ==> #{ENV["SERVER_IP"]}"
+    puts "SERVER_USER ==> #{ENV["SERVER_USER"]}"
+    puts "PEM_FILE_LOC ==> #{ENV["PEM_FILE_LOC"]}"
+  end
 
+  after :publishing, 'precompile_assets'
+  before :check, 'check_server_config'
 end
-
 
 desc "Test Task description"
 task :hello do

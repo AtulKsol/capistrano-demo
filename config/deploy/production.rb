@@ -7,14 +7,20 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-# Amazon server IP
-# role :web, "xx.xx.xx.xx" # use environment variables instead
-# role :app, "xx.xx.xx.xx"
-# role :db,  "xx.xx.xx.xx", :primary => true
+# role :web, ["#{ENV['SERVER_IP']}"] # %w("ENV['SERVER_IP']") # use environment variables instead
+# role :app, ["#{ENV['SERVER_IP']}"] # %w{"ENV['SERVER_IP']"}
+# role :db,  ["#{ENV['SERVER_IP']}"] # %w{"ENV['SERVER_IP']"} # :primary => true
 
-server ENV["SERVER_IP"], :web, :app, :db, primary: true
+server "#{ENV['SERVER_IP']}", roles: %w{app db web}
 
-# set :rails_env, "production"
+set :ssh_options, {
+  user: "#{ENV['SERVER_USER']}",
+  keys: ["#{ENV['PEM_FILE_LOC']}"],
+  forward_agent: false,
+}
+
+set :rails_env, "production"
+# set :rbenv_ruby, '2.0.0p647'
 
 # role-based syntax
 # ==================

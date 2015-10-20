@@ -7,11 +7,10 @@
 # server 'example.com', user: 'deploy', roles: %w{app web}, other_property: :other_value
 # server 'db.example.com', user: 'deploy', roles: %w{db}
 
-
-# Amazon server IP
-role :web, ENV["SERVER_IP"]
-role :app, ENV["SERVER_IP"]
-role :db,  ENV["SERVER_IP"], :primary => true
+# Server IP
+role :web, ["#{ENV['SERVER_IP']}"]
+role :app, ["#{ENV['SERVER_IP']}"]
+role :db,  ["#{ENV['SERVER_IP']}"], :primary => true
 
 # role-based syntax
 # ==================

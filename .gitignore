@@ -37,6 +37,8 @@ build/
 # Ignore environment file
 /.env
 
+# Ignore Gemlock file
+Gemfile.lock
 
 # Ignore all logfiles and tempfiles.
 /log/*
