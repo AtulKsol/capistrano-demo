@@ -22,5 +22,10 @@ module CapistranoTest
 
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
+
+    # Prevent Rails to generate controller specific JS and CSS
+    # config.generators do |g|
+    #   g.assets false
+    # end
   end
 end
