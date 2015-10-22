@@ -4,6 +4,9 @@ require 'capistrano/setup'
 # Include default deployment tasks
 require 'capistrano/deploy'
 
+require 'active_support'
+require 'active_support/core_ext/object'
+
 # require 'capistrano/rvm'
 # require 'capistrano/rails'
 

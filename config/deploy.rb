@@ -11,6 +11,7 @@ set :default_env, { path: "~/.rbenv/shims:~/.rbenv/bin:$PATH" }
 
 # deploy_via command makes Capistrano do a single clone/checkout of your repository on your server the first time, then do an svn up or git pull on every deploy instead of doing an entire clone/export.
 set :deploy_via, :remote_cache
+set :bundle_flags, '--quiet' # '--deployment --quiet' is the default
 
 # set :bundle_gemfile, -> { release_path.join('Gemfile') }
 # set :bundle_dir, -> { shared_path.join('bundle') }
@@ -35,6 +36,7 @@ set :pty, true
 
 # Default value for :linked_files is []
 # set :linked_files, fetch(:linked_files, []).push('config/database.yml', 'config/secrets.yml')
+# set :linked_files, fetch(:linked_files, []).push('Gemfile.lock')
 
 # Default value for linked_dirs is []
 # set :linked_dirs, fetch(:linked_dirs, []).push('log', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'vendor/bundle', 'public/system')
@@ -56,7 +58,8 @@ namespace :deploy do
     end
   end
 
-  desc 'Precompiling Assets fr Production Environment'
+  desc 'Precompiling Assets for Production Environment. Assets can also be precompile in Capistrano 3,
+        by adding/uncommenting `require capistrano/rails/assets` in Capfile and adding capistrano-rails gem in Gemfile'
   task :precompile_assets do
     on roles(:web) do
       within release_path do
@@ -66,20 +69,45 @@ namespace :deploy do
     end
   end
 
-  desc "puts Check Server Config"
+
+  desc "Rollback to specific release version. Run this task manually by cap production `deploy:rollback_to_version`"
+  task :rollback_to_version do
+    on roles :app do
+      ask(:version, "")
+      if fetch(:version).present?
+        puts "Rolling back to Version #{fetch(:version)}"
+
+        # Check if directry exists, if exists then create the symlink to specified release version
+        execute "if test -d #{releases_path.join(fetch(:version))}
+                  then rm -f #{current_path} && ln -s #{releases_path.join(fetch(:version))} #{current_path}
+                else echo 'Directory not found'
+                fi;"
+      else
+        puts "Incorrect Release Version"
+      end
+    end
+  end
+
+  desc "Check Server Config"
   task :check_server_config do
     puts "SERVER_IP ==> #{ENV["SERVER_IP"]}"
     puts "SERVER_USER ==> #{ENV["SERVER_USER"]}"
     puts "PEM_FILE_LOC ==> #{ENV["PEM_FILE_LOC"]}"
   end
 
-  after :publishing, 'precompile_assets'
+  # after :publishing, 'precompile_assets'
   before :check, 'check_server_config'
 end
 
 desc "Test Task description"
 task :hello do
-	ask(:breakfast, "pancakes")
+	ask(:breakfast, "cakes")
+  puts "release_path => #{release_path}"
+  puts "current_path => #{current_path}"
+  puts "deploy_path => #{deploy_path}"
 	puts "Hello World"
-	puts "breakfast: #{fetch(:breakfast)}"
+	puts "Breakfast: #{fetch(:breakfast)}"
+  puts "#{release_path.parent}"
+  puts "#{releases_path.basename}"
+  puts "#{release_path.parent.join(current_path.basename)}"
 end
